@@ -76,16 +76,95 @@ st.markdown("""
 # UTILITY FUNCTIONS
 # ============================================================================
 
+def train_and_save_models(df):
+    """Train models if they don't exist."""
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.ensemble import RandomForestRegressor
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.preprocessing import LabelEncoder
+    from sklearn.model_selection import train_test_split
+    
+    with st.spinner("🤖 Training ML models on first run (this takes ~30 seconds)..."):
+        # Preprocess data
+        data = df.copy()
+        platform_encoder = LabelEncoder()
+        region_encoder = LabelEncoder()
+        sentiment_encoder = LabelEncoder()
+        
+        data['platform_encoded'] = platform_encoder.fit_transform(data['platform'])
+        data['region_encoded'] = region_encoder.fit_transform(data['region'])
+        data['sentiment_encoded'] = sentiment_encoder.fit_transform(data['sentiment'])
+        
+        # Vectorize text
+        vectorizer = TfidfVectorizer(
+            max_features=100,
+            min_df=1,
+            max_df=0.9,
+            ngram_range=(1, 2),
+            stop_words='english'
+        )
+        X_text = vectorizer.fit_transform(data['headline'])
+        X_text_dense = X_text.toarray()
+        
+        # Combine features
+        X = np.hstack([X_text_dense, data[['platform_encoded', 'region_encoded']].values])
+        
+        # Train engagement model
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, data['engagement_score'], test_size=0.2, random_state=42
+        )
+        
+        engagement_model = RandomForestRegressor(
+            n_estimators=100,
+            max_depth=15,
+            min_samples_split=5,
+            random_state=42,
+            n_jobs=-1
+        )
+        engagement_model.fit(X_train, y_train)
+        
+        # Train sentiment model
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, data['sentiment_encoded'], test_size=0.2, random_state=42
+        )
+        
+        sentiment_model = LogisticRegression(
+            max_iter=1000,
+            random_state=42,
+            multi_class='multinomial',
+            solver='lbfgs'
+        )
+        sentiment_model.fit(X_train, y_train)
+        
+        # Save models
+        models_dict = {
+            'engagement_model': engagement_model,
+            'sentiment_model': sentiment_model,
+            'vectorizer': vectorizer,
+            'platform_encoder': platform_encoder,
+            'region_encoder': region_encoder,
+            'sentiment_encoder': sentiment_encoder
+        }
+        
+        with open('models.pkl', 'wb') as f:
+            pickle.dump(models_dict, f)
+        
+        st.success("✅ Models trained and cached!")
+    
+    return models_dict
+
+
 @st.cache_resource
 def load_models():
-    """Load pre-trained models from pickle file."""
-    try:
+    """Load pre-trained models from pickle file or train if missing."""
+    if os.path.exists('models.pkl'):
         with open('models.pkl', 'rb') as f:
             models_dict = pickle.load(f)
         return models_dict
-    except FileNotFoundError:
-        st.error("❌ Models not found! Please run train_model.py first.")
-        st.stop()
+    else:
+        # Auto-train models on first run
+        df = load_dataset()
+        return train_and_save_models(df)
 
 
 @st.cache_data
