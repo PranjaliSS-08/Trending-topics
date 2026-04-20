@@ -9,12 +9,20 @@ import pandas as pd
 import numpy as np
 import pickle
 import os
-from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime
+from collections import Counter
+import nltk
 import warnings
 warnings.filterwarnings('ignore')
+
+# Optional wordcloud import with fallback
+try:
+    from wordcloud import WordCloud
+    WORDCLOUD_AVAILABLE = True
+except ImportError:
+    WORDCLOUD_AVAILABLE = False
 
 # Page Configuration
 st.set_page_config(
@@ -357,17 +365,46 @@ def page_trend_analytics():
         # Combine all headlines for word cloud
         all_text = ' '.join(df['headline'].astype(str))
         
-        wordcloud = WordCloud(
-            width=800, height=400,
-            background_color='white',
-            colormap='viridis',
-            max_words=100
-        ).generate(all_text)
-        
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.imshow(wordcloud, interpolation='bilinear')
-        ax.axis('off')
-        st.pyplot(fig, use_container_width=True)
+        if WORDCLOUD_AVAILABLE:
+            wordcloud = WordCloud(
+                width=800, height=400,
+                background_color='white',
+                colormap='viridis',
+                max_words=100
+            ).generate(all_text)
+            
+            fig, ax = plt.subplots(figsize=(8, 6))
+            ax.imshow(wordcloud, interpolation='bilinear')
+            ax.axis('off')
+            st.pyplot(fig, use_container_width=True)
+        else:
+            # Fallback: Top words frequency bar chart
+            from nltk.tokenize import word_tokenize
+            from nltk.corpus import stopwords
+            
+            try:
+                nltk.data.find('tokenizers/punkt')
+            except LookupError:
+                nltk.download('punkt', quiet=True)
+            
+            try:
+                nltk.data.find('corpora/stopwords')
+            except LookupError:
+                nltk.download('stopwords', quiet=True)
+            
+            words = word_tokenize(all_text.lower())
+            stop_words = set(stopwords.words('english'))
+            words = [w for w in words if w.isalpha() and len(w) > 3 and w not in stop_words]
+            
+            word_freq = Counter(words).most_common(15)
+            
+            fig, ax = plt.subplots(figsize=(8, 6))
+            words_list, freqs = zip(*word_freq)
+            ax.barh(words_list, freqs, color='viridis')
+            ax.set_xlabel('Frequency', fontsize=11, weight='bold')
+            ax.set_title('Top 15 Trending Words', fontsize=14, weight='bold', pad=20)
+            ax.invert_yaxis()
+            st.pyplot(fig, use_container_width=True)
     
     st.markdown("---")
     
