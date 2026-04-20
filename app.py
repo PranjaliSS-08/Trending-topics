@@ -2,6 +2,8 @@
 🚀 2026 GLOBAL TREND FORECASTER
 A comprehensive Streamlit application for predicting engagement scores and sentiment
 of trending topics in 2026 using NLP and machine learning models.
+
+Version: 1.1 - Fixed deployment issues
 """
 
 import streamlit as st
