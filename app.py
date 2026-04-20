@@ -401,7 +401,8 @@ def page_trend_analytics():
             if word_freq:
                 fig, ax = plt.subplots(figsize=(8, 6))
                 words_list, freqs = zip(*word_freq)
-                ax.barh(words_list, freqs, color='viridis')
+                colors = plt.cm.viridis(np.linspace(0, 1, len(words_list)))
+                ax.barh(words_list, freqs, color=colors)
                 ax.set_xlabel('Frequency', fontsize=11, weight='bold')
                 ax.set_title('Top 15 Trending Words', fontsize=14, weight='bold', pad=20)
                 ax.invert_yaxis()
