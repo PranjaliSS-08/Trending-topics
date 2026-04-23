@@ -317,7 +317,7 @@ def page_home():
         Using machine learning models trained on synthetic 2026 data, this app helps:
         - **Predict Engagement**: How likely a topic will go viral (0-100 scale)
         - **Analyze Sentiment**: Determine if a topic is Positive, Neutral, or Negative
-        - **Track Trends**: Visualize trending patterns across platforms and regions
+        - **Track Trends**: Understand patterns across platforms and regions
         """)
     
     with col2:
@@ -329,44 +329,17 @@ def page_home():
         
         🗺️ **Regional Analysis**: Global, India, USA perspectives
         
-        📊 **Rich Visualizations**: Word clouds, sentiment distribution, platform analytics
-        
         🤖 **AI-Powered**: Using Random Forest & Logistic Regression models
         """)
     
     st.markdown("---")
     
-    st.subheader("📋 Dataset Overview")
-    df = load_dataset()
-    
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Records", len(df))
-    col2.metric("Platforms", df['platform'].nunique())
-    col3.metric("Regions", df['region'].nunique())
-    col4.metric("Features", df.shape[1])
-    
-    st.write("**Dataset Features:**")
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.write("**Headline**: News topic/trending story")
-        st.write("**Platform**: X, News, Google Trends")
-    
-    with col2:
-        st.write("**Region**: Global, India, USA")
-        st.write("**Engagement Score**: 0-100 (higher = more viral)")
-    
-    with col3:
-        st.write("**Sentiment**: Positive, Neutral, Negative")
-    
-    st.markdown("---")
-    
     st.subheader("🎯 How to Use")
     st.write("""
-    1. **Navigate** using the sidebar menu
-    2. **Enter Headlines** on the Real-time Forecasting page
-    3. **Get Predictions** for engagement score and sentiment
-    4. **Understand Results** using the provided explanations
+    1. **Navigate** using the sidebar  
+    2. **Enter Headlines** on the Real-time Forecasting page  
+    3. **Get Predictions** for engagement score and sentiment  
+    4. **Understand Results** using the provided explanations  
     """)
     
     st.markdown("---")
@@ -375,8 +348,6 @@ def page_home():
     💡 **Tip**: High engagement scores suggest topics likely to go viral across platforms.
     Use this app to understand what makes news trending and predict future trends!
     """)
-
-
 # ============================================================================
 # PAGE: REAL-TIME FORECASTING
 # ============================================================================
