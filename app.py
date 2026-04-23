@@ -316,7 +316,7 @@ def page_home():
         
         Using machine learning models trained on synthetic 2026 data, this app helps:
         - **Predict Engagement**: How likely a topic will go viral (0-100 scale)
-        - **Analyze Sentiment**: Determine if a topic is Positive, Neutral, or Negative
+        - **Analyze Sentiment**: Determine if a topic is Positive, or Negative
         - **Track Trends**: Understand patterns across platforms and regions
         """)
     
